@@ -1,0 +1,306 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1"/>
+  <title>{{TITLE}}</title>
+  <style>
+    :root{
+      --bg1:#f3eee4; --bg2:#e4dfd6; --paper: rgba(255,253,248,0.97);
+      --ink:#1f1f1f; --muted:#5a5a5a; --line:#dedad1; --accent:#3c4f68; --accent2:#c8b68b;
+    }
+    *{ box-sizing:border-box; }
+    html, body{ height:100%; }
+    body{
+      margin:0; color:var(--ink);
+      font-family: system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      background: radial-gradient(circle at top left, var(--bg1), var(--bg2));
+      overflow-y:auto;
+    }
+
+    /* Fixed top bar */
+    .topbar{
+      position: fixed;
+      top: 0; left: 0; right: 0;
+      z-index: 9999;
+      backdrop-filter: blur(10px);
+      background: rgba(255,253,248,0.90);
+      border-bottom: 1px solid var(--line);
+      box-shadow: 0 10px 25px rgba(0,0,0,0.08);
+    }
+    .topbar-inner{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: .85rem 1.25rem;
+      display:flex;
+      gap: 1rem;
+      align-items:center;
+      justify-content: space-between;
+    }
+    .topbar-left{ min-width:0; }
+    .course-title{ font-size:1.10rem; font-weight:800; line-height:1.15; }
+    .section-title{
+      margin:.25rem 0 0;
+      font-size:1.00rem;
+      color:var(--muted);
+      white-space:nowrap;
+      overflow:hidden;
+      text-overflow:ellipsis;
+      max-width: min(72vw, 800px);
+    }
+    .topbar-actions{ display:flex; gap:.6rem; align-items:center; flex:0 0 auto; }
+    .btn{
+      border:1px solid rgba(60,79,104,0.25);
+      background: rgba(60,79,104,0.08);
+      color:#122033;
+      padding:.52rem .78rem;
+      border-radius: 12px;
+      cursor:pointer;
+      font-size:.98rem;
+      user-select:none;
+    }
+    .btn:hover{ background: rgba(60,79,104,0.12); }
+    .btn.secondary{ background: rgba(0,0,0,0.04); border-color: rgba(0,0,0,0.08); color:#2b2b2b; }
+
+    /* Page layout */
+    .wrap{
+      max-width: 980px;
+      margin: 0 auto;
+      padding: 6.4rem 3.2rem 4.8rem; /* top accounts for fixed bar */
+    }
+    main{
+      background: var(--paper);
+      border: 1px solid var(--line);
+      border-radius: 18px;
+      padding: 2.0rem 2.0rem 2.6rem;
+      box-shadow: 0 18px 45px rgba(0,0,0,0.07);
+      overflow: visible;
+    }
+
+    /* Typography */
+    main h1.doc-title{
+      display:block;
+      margin: 0 0 1.1rem;
+      font-size: 2.45rem;
+      letter-spacing: .01em;
+      line-height: 1.15;
+      border-bottom: 1px solid var(--line);
+      padding-bottom: .95rem;
+    }
+    main h2{
+      margin: 1.9rem 0 .75rem;
+      font-size: 2.10rem;
+      scroll-margin-top: 9.0rem;
+      border-top: 1px dashed var(--line);
+      padding-top: 1.45rem;
+    }
+    main h2:first-of-type{ border-top:none; padding-top:0; margin-top:0; }
+    main h3{
+      margin: 1.45rem 0 .55rem;
+      font-size: 1.55rem;
+      scroll-margin-top: 9.0rem;
+    }
+    main h4{
+      margin: 1.1rem 0 .4rem;
+      font-size: 1.25rem;
+      scroll-margin-top: 9.0rem;
+    }
+    main p, main li{ font-size: 1.30rem; line-height: 1.80; }
+    main ul, main ol{ margin: .5rem 0 1.15rem 1.55rem; }
+
+    main blockquote{
+      border-left: 5px solid var(--accent2);
+      margin: 1rem 0;
+      padding: .55rem 1.05rem;
+      color: var(--muted);
+      background: rgba(200,182,139,0.10);
+      border-radius: 12px;
+    }
+
+    a{ color: var(--accent); text-decoration:none; }
+    a:hover{ text-decoration:underline; }
+
+    code{
+      font-family: ui-monospace, SFMono-Regular, Menlo, Monaco, Consolas, "Liberation Mono", "Courier New", monospace;
+      font-size: 0.95em;
+      background: rgba(0,0,0,0.05);
+      padding: .1em .3em;
+      border-radius: .35em;
+    }
+
+    .tag{
+      display:inline-block;
+      font-size:.78rem;
+      letter-spacing:.10em;
+      text-transform: uppercase;
+      color:#5a5a5a;
+      background: rgba(0,0,0,0.04);
+      border: 1px solid rgba(0,0,0,0.06);
+      border-radius: 999px;
+      padding:.2rem .55rem;
+      margin:.2rem .5rem .2rem 0;
+      vertical-align: middle;
+    }
+
+    /* Video card (compact: thumbnail right, text left; nothing flows under thumbnail) */
+    .video{
+      margin: 1.05rem 0 1.35rem;
+      padding: 1.05rem 1.1rem;
+      border: 1px solid rgba(60,79,104,0.18);
+      background: rgba(60,79,104,0.06);
+      border-radius: 14px;
+    }
+    .video-top{
+      display: flow-root; /* contain float */
+    }
+    .video-thumb{
+      float: right;
+      width: 260px;
+      max-width: 42%;
+      margin: .15rem 0 .8rem 1.25rem;
+    }
+    .video-thumb img{
+      width: 100%;
+      height: auto;
+      border-radius: 12px;
+      box-shadow: 0 10px 30px rgba(0,0,0,0.16);
+      display:block;
+    }
+    .video-title{
+      margin: 0 0 .65rem 0;
+      line-height: 1.22;
+    }
+    .video-title a strong{
+      display:block;
+      font-size: 1.28rem;
+      line-height: 1.22;
+    }
+    .video-desc{
+      color: var(--muted);
+      font-size: 1.08rem;
+      line-height: 1.55;
+      margin: 0;
+    }
+
+    /* "Invisible floor": everything below clears the thumbnail */
+    .video-bottom{
+      clear: both;
+      padding-top: .75rem;
+      margin-top: .65rem;
+    }
+    .video-open{
+      font-size: 1.08rem;
+      margin: 0;
+    }
+
+    @media (max-width: 900px){
+      .video-thumb{
+        float: none;
+        width: 100%;
+        max-width: 100%;
+        margin: .75rem 0 .6rem 0;
+      }
+      .video-bottom{
+        clear: none;
+        padding-top: .5rem;
+        margin-top: .4rem;
+      }
+    }
+
+    .teacher-only{ display:none; }
+    body.show-teacher .teacher-only{ display:block; }
+
+    @media (max-width: 900px){
+      .wrap{ padding: 6.0rem 1.4rem 3.8rem; }
+      .topbar-inner{ padding: .75rem 1rem; }
+      .section-title{ max-width: 86vw; }
+      .video-left{ min-width: 0; flex-basis: 100%; }
+      .video-right{ width: 100%; max-width: 100%; flex-basis: 100%; margin-left: 0; }
+    }
+
+    @media print{
+      body{ background:white; }
+      .topbar{ display:none; }
+      main{ box-shadow:none; border:none; }
+      .wrap{ padding:0; max-width: none; }
+    }
+  </style>
+</head>
+<body>
+  <div class="topbar" role="banner">
+    <div class="topbar-inner">
+      <div class="topbar-left">
+        <div class="course-title">{{TITLE}}</div>
+        <div id="sectionTitle" class="section-title"></div>
+      </div>
+      <div class="topbar-actions">
+        <button id="toggle-teacher" class="btn" type="button" aria-pressed="false">Show teacher notes</button>
+        <button id="to-top" class="btn secondary" type="button">Top</button>
+      </div>
+    </div>
+  </div>
+
+  <div class="wrap">
+    <main id="content">
+      {{CONTENT}}
+    </main>
+  </div>
+
+  <script>
+    (function(){
+      const btn = document.getElementById('toggle-teacher');
+      if(!btn) return;
+      function set(state){
+        document.body.classList.toggle('show-teacher', state);
+        btn.setAttribute('aria-pressed', state ? 'true' : 'false');
+        btn.textContent = state ? 'Hide teacher notes' : 'Show teacher notes';
+        try{ localStorage.setItem('showTeacherNotes', state ? '1' : '0'); }catch(e){}
+      }
+      let initial = false;
+      try{ initial = localStorage.getItem('showTeacherNotes') === '1'; }catch(e){}
+      set(initial);
+      btn.addEventListener('click', () => set(!document.body.classList.contains('show-teacher')));
+    })();
+
+    (function(){
+      const btn = document.getElementById('to-top');
+      if(!btn) return;
+      btn.addEventListener('click', () => window.scrollTo({top: 0, behavior: 'smooth'}));
+    })();
+
+    (function(){
+      const sectionEl = document.getElementById('sectionTitle');
+      const headings = Array.from(document.querySelectorAll('#content h2, #content h3'));
+      if(!sectionEl || !headings.length) return;
+
+      function currentHeading(){
+        const offset = 150;
+        let best = headings[0];
+        for(const h of headings){
+          const top = h.getBoundingClientRect().top;
+          if(top - offset <= 0) best = h;
+          else break;
+        }
+        return best;
+      }
+
+      let ticking = false;
+      function update(){
+        ticking = false;
+        const h = currentHeading();
+        if(h) sectionEl.textContent = h.textContent || '';
+      }
+
+      function onScroll(){
+        if(!ticking){
+          ticking = true;
+          window.requestAnimationFrame(update);
+        }
+      }
+      window.addEventListener('scroll', onScroll, {passive:true});
+      window.addEventListener('resize', onScroll);
+      update();
+    })();
+  </script>
+</body>
+</html>
